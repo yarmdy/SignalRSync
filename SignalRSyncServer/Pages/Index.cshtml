@@ -1,0 +1,61 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js" integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugBLwyOXpzhkPyHIFdBO0K2VCu57fvP2Twgx1o2A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        (async function () {
+            const tablebody = document.querySelector("#tablebody");
+            const templatetr = document.querySelector("#templatetr");
+            const connection = new signalR.HubConnectionBuilder().withUrl("ObserverHub").withAutomaticReconnect().build();
+            async function init() {
+                connection.on("ConnectedAsync", a => {
+                    tablebody.insertAdjacentHTML("beforeend", bindTR(a));
+                });
+                connection.on("DisconnectedAsync", a => {
+                    tablebody.querySelector(`[cid="${a}"]`).remove();
+                });
+                await connection.start();
+                const list = await connection.invoke("GetConnectedAllAsync");
+                tablebody.innerHTML = "";
+                list.forEach(a => {
+                    tablebody.insertAdjacentHTML("beforeend", bindTR(a));
+                });
+            }
+            function bindTR(item) {
+                return templatetr.innerHTML.replace(/\{\{(.+?)\}\}/g, (a, g, i, n) => { 
+                    return eval(`(${g})`)||"";
+                });
+            }
+            await init();
+        })();
+    </script>
+}
+<div class="text-center">
+    <h1 class="display-4">已连接的端</h1>
+    <table class="table table-info">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>分组</th>
+                <th>id</th>
+                <th>ip</th>
+                <th>端口</th>
+            </tr>
+        </thead>
+        <tbody id="tablebody">
+            
+        </tbody>
+    </table>
+</div>
+<script type="text/template" id="templatetr">
+    <tr cid="{{item.connectionId}}">
+        <td>{{item.identityInfo.clientName}}</td>
+        <td>{{item.identityInfo.groupName}}</td>
+        <td>{{item.connectionId}}</td>
+        <td>{{`${(item.ip&0xff)}.${(item.ip>>8&0xff)}.${(item.ip>>16&0xff)}.${(item.ip>>24&0xff)}`}}</td>
+        <td>{{item.port}}</td>
+    </tr>
+</script>
