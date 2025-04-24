@@ -16,6 +16,7 @@ public class SignalRSyncHub : Hub<ISignalRSync>, ISignalRSync
     {
         var httpContext = Context.GetHttpContext()!;
         var info = new IdentityAuthenticationInfo(Context.ConnectionId, BitConverter.ToInt32(httpContext.Connection.RemoteIpAddress!.GetAddressBytes()), httpContext.Connection.RemotePort, (httpContext.User as IdentityUser)!.IdentityInfo);
+        await Groups.AddToGroupAsync(Context.ConnectionId,info.identityInfo.groupName);
         await _repository.AddAsync(Context.ConnectionId, info);
         await _observer.Clients.All.ConnectedAsync(info);
     }
