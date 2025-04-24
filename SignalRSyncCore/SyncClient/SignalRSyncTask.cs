@@ -55,7 +55,7 @@ public class SignalRSyncTask : BackgroundService
                 options.ClientName,
                 options.GroupName
             })));
-        }).WithAutomaticReconnect().Build();
+        }).WithAutomaticReconnect([TimeSpan.FromSeconds(5)]).Build();
 
         StartTask = Task.Run(async () => { 
             while(!_thisTokenSource.IsCancellationRequested && _connectionAccessor.HubConnection.State!=HubConnectionState.Connected)
@@ -67,7 +67,7 @@ public class SignalRSyncTask : BackgroundService
                 catch (Exception ex)
                 {
                     _logger.LogError(ex,"连接到同步服务器失败");
-                    await Task.Delay(3000);
+                    await Task.Delay(5000);
                 }
             }
         });
