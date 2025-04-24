@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
-[Authorize]
+[Authorize(AuthenticationSchemes =IdentityAuthenticationHandler.SchemeName)]
 public class SignalRSyncHub : Hub<ISignalRSync>, ISignalRSync
 {
     private readonly IHubContext<IdentityAuthenticationInfosObserverHub, IIdentityAuthenticationInfosObserver> _observer;
