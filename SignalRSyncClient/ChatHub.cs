@@ -13,7 +13,7 @@ public class ChatHub : Hub<IChatHandler>
         var httpContext = Context.GetHttpContext()!;
         var chatMsg = new ChatMessage()
         {
-            CreatedBy = httpContext.Connection.RemoteIpAddress!.MapToIPv4().ToString(),
+            CreatedBy = httpContext.Connection.RemoteIpAddress!.ToString(),
             TimeCreated = DateTime.Now,
             Message = msg
         };
