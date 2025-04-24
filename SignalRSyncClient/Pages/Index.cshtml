@@ -3,9 +3,37 @@
 @{
     ViewData["Title"] = "Home page";
 }
-
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js" integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugBLwyOXpzhkPyHIFdBO0K2VCu57fvP2Twgx1o2A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        (async function () {
+            const messageBox = document.querySelector("#messageBox");
+            const connection = new signalR.HubConnectionBuilder().withUrl("chathub").withAutomaticReconnect().build();
+            async function init() {
+                document.querySelector("#form1").addEventListener("submit",e => {
+                    e.preventDefault();
+                    connection.send("NewMessage", messageText.value);
+                });
+                connection.on("NewMessage", msg => {
+                    messageBox.insertAdjacentHTML("beforeend", `<p>${msg.createdBy}&nbsp;${msg.timeCreated}</p><p>${msg.message}</p>`);
+                    messageBox.scrollTo(0, messageBox.scrollHeight);
+                });
+                await connection.start();
+            }
+            await init();
+        })();
+    </script>
+}
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
+    <div style="">
+        <div id="messageBox" style="height:50vh;width:100%;overflow-y:scroll;outline: 1px solid red;">
+        </div>
+        <form id="form1" style="display: flex;flex-flow: row nowrap;align-items: stretch;justify-content: right;">
+            <textarea id="messageText" style="flex:1"></textarea>
+            <button>发送</button>
+        </form>
+    </div>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
