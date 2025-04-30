@@ -1,2 +1,3 @@
 @echo off
-dotnet run --urls=http://*:5100 --no-build
+start dotnet run --urls=http://*:5100 --no-build
+start http://localhost:5100
